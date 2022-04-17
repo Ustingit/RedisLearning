@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisTests", "RedisTests.csproj", "{9325F3DB-435B-4657-B1BA-4280F6A17DCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisTests", "RedisTests.csproj", "{9325F3DB-435B-4657-B1BA-4280F6A17DCF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CBEF41C5-3F3B-473F-939B-C95E87DEAB7F}"
 	ProjectSection(SolutionItems) = preProject
-		redis.runsettings.xml = redis.runsettings.xml
+		redis1.runsettings = redis1.runsettings
 	EndProjectSection
 EndProject
 Global
