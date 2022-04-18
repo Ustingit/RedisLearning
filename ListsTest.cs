@@ -47,15 +47,19 @@ namespace RedisTests
 		public void ListTest1()
 		{
 			//arrange 
+			var keyUserList = "SMB:Users";
 			var smbYuryiPosts = "SMB:{yuryi}:Posts"; //SMB - short message blocks, how it can look with real data to consider what it is and what it's related to
 
 			//action
+			_db.ListLeftPush(keyUserList, new RedisValue[] { "yuryi" });
 			_db.ListLeftPush(smbYuryiPosts, new RedisValue[] { "Hello world", "Welcome to the short message posts" });
 
 			var numberOfPosts = _db.ListLength(smbYuryiPosts);
+			var posts = _db.ListRange(smbYuryiPosts, 0, -1);
 
 			//assert
 			Check.That(numberOfPosts).IsEqualTo(2);
+			Check.That(posts.Length).IsEqualTo(2);
 		}
 	}
 }
