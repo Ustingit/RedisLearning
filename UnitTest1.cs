@@ -19,7 +19,8 @@ namespace RedisTests
 	/// SET "KEY" "VALUE"
 	/// PERSIST   -> if stated before set command make it key persistent (won't be deleted) EX:  SET "somekey" "somevalue" EX 10    =>   PERSIST "somekey"   => won't be deleted until server is running
 	/// SET "somekey" "somevalue" EX 10    - expires (will be delted) in 10 seconds 
-	///
+	/// SET nxKey nxValue NX  -> NX here means that will be set only does not exist
+	/// 
 	/// GET "somekey"     - fetch info with this key
 	/// 
 	/// </summary>
@@ -39,6 +40,59 @@ namespace RedisTests
 		public void SetupTest()
 		{
 			Console.WriteLine("TestContext.TestName='{0}'  static _testContext.TestName='{1}'", _context.TestName, _context.TestName);
+		}
+
+		[TestMethod]
+		public void IncrementTest()
+		{
+			//arrange
+			var cm = ConnectionMultiplexer.Connect("127.0.0.1:6379,abortConnect=false");
+			var redis = cm.GetDatabase();
+
+			var key = "nxAutoKey";
+			var value = 1;
+
+			redis.StringSet(key, value);
+
+			var initialResult = (int) redis.StringGet(key);
+
+			Check.That(initialResult).IsEqualTo(value);
+
+			redis.StringIncrement(key);
+			redis.StringIncrement(key, 5);
+
+			var possiblyIncrementedValue = (int)redis.StringGet(key);
+
+			Check.That(possiblyIncrementedValue).IsEqualTo(value + 6);
+		}
+
+		[TestMethod]
+		public void NxTest()
+		{
+			//arrange
+			var cm = ConnectionMultiplexer.Connect("127.0.0.1:6379,abortConnect=false");
+			var redis = cm.GetDatabase();
+
+			var key = "nxAutoKey2";
+			var value = "firstValue";
+			var secondValue = "secondValue";
+
+			
+			redis.StringSet(key, value, null, when: When.NotExists);
+			var initialResult = redis.StringGet(key);
+
+			Check.That(initialResult.HasValue).IsTrue();
+			Check.That(initialResult.ToString()).IsEqualTo(value);
+
+			//action
+			redis.StringSet(key, secondValue, null, when: When.NotExists);
+
+			var secondResult = redis.StringGet(key);
+
+			//assert
+
+			Check.That(secondResult.HasValue).IsTrue();
+			Check.That(secondResult.ToString()).IsEqualTo(value);
 		}
 
 		[TestMethod]
