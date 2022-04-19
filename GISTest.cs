@@ -17,7 +17,7 @@ namespace RedisTests
 		  key => langitude, longitude, member
 
 		GEOADD
-		GEOHASH
+		GEOHASH  => 
 		GEOPOS  -> geo position (returns lat and long)
 		GEODIST -> calculates distancs between those 2 members
 		GEORADIUS  -> return kind of are these points in these radius ? useful for uber-like logic and others. Or in other words @limit our serach by this radius of let say 5 km" and return all the members
@@ -27,29 +27,15 @@ namespace RedisTests
 
 		private static TestContext _context = null;
 		private static IDatabase _db;
+		private static uint count = 0;
 
-		[ClassInitialize]
-		public static void ClassInit(TestContext context)
-		{
-			_context = context;
-
-			var cm = ConnectionMultiplexer.Connect("127.0.0.1:6379,abortConnect=false,allowAdmin=true");
-
-			var server = cm.GetServer("127.0.0.1:6379");
-			server.FlushDatabase(); //clean-up (only with admin rights)
-
-			_db = cm.GetDatabase();
-		}
-
-		[TestMethod]
-		public void GISTest1()
+		private static void LoadWaterfalls()
 		{
 			var filename = $"{System.AppContext.BaseDirectory}..\\..\\..\\TestData\\WaterfallsAt.csv";
 			var absPath = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
 			Check.That(File.Exists(filename)).IsTrue();
 
-			uint count = 0;
 			foreach (var readLine in File.ReadAllLines(filename))
 			{
 				Debug.WriteLine(readLine);
@@ -72,8 +58,35 @@ namespace RedisTests
 
 				_db.GeoAdd(countryKey, longitude, latitude, locationName);
 			}
+		}
 
+		[ClassInitialize]
+		public static void ClassInit(TestContext context)
+		{
+			_context = context;
+
+			var cm = ConnectionMultiplexer.Connect("127.0.0.1:6379,abortConnect=false,allowAdmin=true");
+
+			var server = cm.GetServer("127.0.0.1:6379");
+			server.FlushDatabase(); //clean-up (only with admin rights)
+
+			_db = cm.GetDatabase();
+
+			LoadWaterfalls();
+		}
+
+		[TestMethod]
+		public void GISTest1()
+		{
 			Check.That(count).IsGreaterThan(0);
+		}
+
+		[TestMethod]
+		public void Test_08_03()
+		{
+			var distance = _db.GeoDistance("IC", "Gullfoss", "Dettifoss", GeoUnit.Kilometers);
+
+			Check.That(distance.Value).IsGreaterThan(250);
 		}
 	}
 }
